@@ -7,6 +7,8 @@ import (
 	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/config"
 	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/handler"
 	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/server"
+	"github.com/ilyabukanov123/todo-app/pkg/repository"
+	"github.com/ilyabukanov123/todo-app/pkg/service"
 	"log"
 )
 
@@ -20,9 +22,10 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Println(config)
 
-	handlers := new(handler.Handler)
+	repos := repository.NewRepository()
+	services := service.NewService(repos)
+	handlers := handler.NewHandler(services)
 
 	s := server.NewServer(config, handlers.InitRoutes(), "8080")
 	if err := s.Start(); err != nil {
