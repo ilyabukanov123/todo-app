@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/config"
+	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/handler"
 	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/server"
 	"log"
 )
@@ -20,9 +22,12 @@ func main() {
 	}
 	fmt.Println(config)
 
-	s := server.NewServer(config)
+	handlers := new(handler.Handler)
+
+	s := server.NewServer(config, handlers.InitRoutes(), "8080")
 	if err := s.Start(); err != nil {
 		// throw error
 		fmt.Println(err)
 	}
+	gin.SetMode(gin.ReleaseMode)
 }

@@ -1,16 +1,29 @@
 package server
 
-import "github.com/ilyabukanov123/todo-app/internal/app/todo-app/config"
+import (
+	"context"
+	"github.com/ilyabukanov123/todo-app/internal/app/todo-app/config"
+	"net/http"
+	"time"
+)
 
 // Server ...
 type Server struct {
-	config *config.Config
+	config     *config.Config
+	handler    http.Handler
+	httpServer *http.Server
 }
 
 // NewServer ...
-func NewServer(c *config.Config) *Server {
+func NewServer(cfg *config.Config, h http.Handler, port string) *Server {
 	return &Server{
-		config: c,
+		config:  cfg,
+		handler: h,
+		httpServer: &http.Server{
+			Addr:           ":" + port,
+			MaxHeaderBytes: 1 << 20,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second},
 	}
 }
 
@@ -20,12 +33,12 @@ func (s *Server) Start() error {
 		//throw error
 		return err
 	}
-	return nil
+	return s.httpServer.ListenAndServe()
 }
 
 // Stop ...
-func (s *Server) Stop() error {
-	return nil
+func (s *Server) Stop(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
 }
 
 // setupLogger ...
